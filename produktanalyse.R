@@ -27,14 +27,16 @@ df <- order_to_store %>%
 
 df %>% 
   select(varenummer, varenavn, pris, volum, smak, friskhet, fylde, sodme, land, distrikt, rastoff, varetype, poeng, lagringsgrad, produktutvalg, order_to_store) %>% 
-  filter(pris < 200, grepl("fat", smak), varetype == "Hvitvin", grepl("Chardonnay", rastoff)) %>% 
+  filter(pris < 200, str_detect(smak, "fat"), varetype == "Hvitvin", str_detect(rastoff, "Chardonnay")) %>% 
   arrange(pris) %>%
   distinct() %>% 
   view()
 
+
+
 df %>% 
   select(varenummer, varenavn, pris, poeng, order_to_store, volum, land, rastoff, varetype, smak) %>% 
-  filter(pris < 200, grepl("fat", smak), varetype == "Hvitvin", grepl("Chardonnay", rastoff)) %>% 
+  filter(pris < 200, str_detect(smak, "fat"), varetype == "Hvitvin", str_detect(rastoff, "Chardonnay")) %>% 
   arrange(pris) %>%
   distinct() %>% 
   view()
