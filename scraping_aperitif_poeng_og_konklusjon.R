@@ -19,23 +19,10 @@ paths_allowed(
 # Setter opp url ---------------------------------------------------------------------------
 
 
-url_loop_aperitif <- paste0("https://www.aperitif.no/pollisten/vin?minPrice=&maxPrice=300&q=&sortBy=editorial_rating&offset=",30 * 0:1 )
+url_loop_aperitif <- paste0("https://www.aperitif.no/pollisten/vin?minPrice=&maxPrice=300&q=&sortBy=editorial_rating&offset=",30 * 0:600 )
 
 
 # Scraping fra aperitif ---------------------------------------------------------------------
-
-
-#varenummer   <- scraping(".product-details")
-
-varenummer   <- lapply(url_loop_aperitif,
-                       function(url){
-                         url %>% read_html() %>% 
-                           html_nodes(".product-details") %>% 
-                           html_text() %>%
-                           gsub('[\r\n\t]', '', .) 
-                       }) %>% 
-  unlist()
-
 
 
 url_aperitif <- lapply(url_loop_aperitif,
@@ -50,12 +37,6 @@ url_aperitif <- lapply(url_loop_aperitif,
 
 # Rensker dataene ---------------------------------------------------------------------------
 
-           
-varenummer <- varenummer %>% 
-  str_trim() %>% 
-  str_extract_all("\\([^()]+\\)") %>% 
-  str_remove("\\(") %>% 
-  str_remove("\\)")
 
 url_aperitif <- url_aperitif %>% 
   str_trim() %>% 
@@ -65,23 +46,12 @@ url_aperitif <- url_aperitif %>%
 url_aperitif <- paste("https://www.aperitif.no", url_aperitif, sep = "")
 
 
-# lager tibble -----------------------------------------------------------------------------
-
-df <- tibble(
-  varenummer,
-  url_aperitif
-)
-
 
 ## Scraper hver enkelt side fra utvalg --------------------------------------------------------------------
 
-url_enkel <- df %>% 
-  select(url_aperitif) %>% 
-  unlist()
-
 
 scraping <- function(info){
-  lapply(url_enkel,
+  lapply(url_aperitif,
          function(url){
            url %>% read_html() %>% 
              html_node(info) %>% 
@@ -97,21 +67,27 @@ scraping <- function(info){
 
 # Disse funker ikke ennå. Fortsett her.
 
+varenummer   <- scraping(".act span span")
 
-konklusjon   <- scraping(".conclusion")
-
+navn         <- scraping("h1")
 
 poeng        <- scraping(".rating-points")
 
+konklusjon   <- scraping(".conclusion")
+
+date         <- scraping(".date") %>% 
+  str_trim()
 
 
 # Creating tibble and writing csv -----------------------------------------
 
 
-df2 <- tibble(
+df <- tibble(
   varenummer,
+  navn,
   poeng,
   konklusjon,
+  date,
   url_aperitif
 )
 
@@ -120,6 +96,6 @@ current_date <- Sys.Date() %>%
   str_remove_all("-")
 
 
-write_excel_csv2(df2, paste("data/", current_date,"_aperitif_poeng_og_konklusjon.csv", sep="")) 
+write_excel_csv2(df, paste("data/", current_date,"_aperitif_poeng_og_konklusjon.csv", sep="")) 
 
                   
