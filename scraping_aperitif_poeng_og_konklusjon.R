@@ -6,8 +6,8 @@ library(tidyverse)
 
 
 
+# robotstxt ---------------------------------------------------------------
 
-# robotstxt ---------------------------------------------------------------------------------
 
 paths_allowed(
   paths = c("https://www.aperitif.no/pollisten/vin?minPrice=&maxPrice=300&q=&sortBy=editorial_rating&offset=0")
@@ -73,25 +73,22 @@ df <- tibble(
 )
 
 
-
-
 ## Scraper hver enkelt side fra utvalg --------------------------------------------------------------------
 
 url_enkel <- df %>% 
   select(url_aperitif) %>% 
-  top_n(2) %>% 
   unlist()
 
-url_enkel
 
 scraping <- function(info){
   lapply(url_enkel,
          function(url){
            url %>% read_html() %>% 
-             html_nodes(info) %>% 
+             html_node(info) %>% 
              html_text() %>%
              gsub('[\r\n\t]', '', .) 
-         }) 
+         }) %>% 
+    unlist()
 }
 
 
@@ -100,15 +97,29 @@ scraping <- function(info){
 
 # Disse funker ikke ennå. Fortsett her.
 
-konklusjon   <- scraping(".conclusion") %>% 
-                  .[[1]] %>% 
-  unlist()
 
-poeng        <- scraping(".product-top clearfix") %>% 
-  str_subset(., ".rating-points")
+konklusjon   <- scraping(".conclusion")
 
+
+poeng        <- scraping(".rating-points")
 
 
 
-# write_excel_csv2(df, "aperitif_pollisten_300kr.csv")
+# Creating tibble and writing csv -----------------------------------------
+
+
+df2 <- tibble(
+  varenummer,
+  poeng,
+  konklusjon,
+  url_aperitif
+)
+
+
+current_date <- Sys.Date() %>% 
+  str_remove_all("-")
+
+
+write_excel_csv2(df2, paste("data/", current_date,"_aperitif_poeng_og_konklusjon.csv", sep="")) 
+
                   

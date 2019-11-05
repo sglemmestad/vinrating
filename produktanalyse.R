@@ -5,7 +5,7 @@ library("tidyverse")
 # Load data --------------------------------------------------------------------
 
 
-aperitif <-  read_csv2("data/aperitif_pollisten.csv", locale = locale(encoding = "latin1")) %>% 
+aperitif <-  read_csv2("data/aperitif_poeng.csv", locale = locale(encoding = "latin1")) %>% 
   rename_all(. %>% tolower())
 
 produkter <-  read_csv2("https://www.vinmonopolet.no/medias/sys_master/products/products/hbc/hb0/8834253127710/produkter.csv", locale = locale(encoding = "latin1")) %>% 
