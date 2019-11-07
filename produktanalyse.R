@@ -5,7 +5,7 @@ library("tidyverse")
 # Load data --------------------------------------------------------------------
 
 
-aperitif <-  read_csv2("data/aperitif_poeng.csv", locale = locale(encoding = "latin1")) %>% 
+aperitif <-  read_csv2("data/20191106_aperitif_poeng_og_konklusjon.csv") %>% 
   rename_all(. %>% tolower())
 
 produkter <-  read_csv2("https://www.vinmonopolet.no/medias/sys_master/products/products/hbc/hb0/8834253127710/produkter.csv", locale = locale(encoding = "latin1")) %>% 
@@ -26,38 +26,36 @@ df <- order_to_store %>%
 
 
 df %>% 
-  select(varenummer, varenavn, pris, volum, smak, friskhet, fylde, sodme, land, distrikt, rastoff, varetype, poeng, lagringsgrad, produktutvalg, order_to_store) %>% 
-  filter(pris < 200, str_detect(smak, "fat"), varetype == "Hvitvin", str_detect(rastoff, "Chardonnay")) %>% 
-  arrange(pris) %>%
-  distinct() %>% 
-  view()
-
-
-
-df %>% 
-  select(varenummer, varenavn, pris, poeng, order_to_store, volum, land, rastoff, varetype, smak) %>% 
-  filter(pris < 200, str_detect(smak, "fat"), varetype == "Hvitvin", str_detect(rastoff, "Chardonnay")) %>% 
-  arrange(pris) %>%
-  distinct() %>% 
-  view()
-
-
-
-df %>% 
-  select(varenummer, varenavn, argang, land, distrikt, pris, poeng, varetype, sodme, lagringsgrad) %>% 
-  filter(lagringsgrad == "Kan drikkes nå, blir bedre ved lagring", pris < 300, varetype == "Hvitvin") %>% 
+  select(varenummer, poeng, konklusjon, date, argang, order_to_store, varenavn, pris, volum, varetype, smak, rastoff) %>% 
+  filter(pris < 200, str_detect(smak, "fat"), varetype == "Hvitvin", str_detect(rastoff, "Chardonnay", volum == 0.75)) %>% 
   arrange(desc(poeng)) %>%
   distinct() %>% 
   view()
 
 
-
 df %>% 
-  select(varenummer, varenavn, argang, rastoff, land, distrikt, pris, poeng, varetype, lagringsgrad, order_to_store) %>% 
-  filter(pris < 170, varetype == "Rødvin") %>% 
+  select(varenummer, poeng, konklusjon, date, argang, order_to_store, varenavn, pris, volum, varetype, smak, rastoff) %>% 
+  filter(pris < 200, varetype == "Rødvin", volum == 0.75) %>% 
   arrange(desc(poeng)) %>%
   distinct() %>% 
   view()
+
+
+df %>% 
+  select(varenummer, poeng, konklusjon, date, argang, order_to_store, varenavn, pris, land, varetype, sodme, lagringsgrad, volum) %>% 
+  filter(lagringsgrad == "Kan drikkes nå, blir bedre ved lagring", pris < 300, varetype == "Hvitvin", volum == 0.75) %>% 
+  arrange(desc(poeng)) %>%
+  distinct() %>% 
+  view()
+
+
+df %>% 
+  select(varenummer, poeng, konklusjon, date, argang, order_to_store, varenavn, pris, land, varetype, sodme, lagringsgrad, volum) %>% 
+  filter(lagringsgrad == "Kan drikkes nå, blir bedre ved lagring", pris < 300, varetype == "Rødvin", volum == 0.75) %>% 
+  arrange(desc(poeng)) %>%
+  distinct() %>% 
+  view()
+
 
 
 df %>% 
@@ -65,23 +63,15 @@ df %>%
   top_n(10)
 
 df %>% 
-  group_by(varetype) %>% 
-  summarise(antall = n()) %>% 
-  arrange(desc(antall)) %>% 
-  top_n(5)
-
-df %>% 
   filter(varetype == "Rødvin", land == "Frankrike") %>% 
-  group_by(distrikt) %>% 
-  summarise(antall = n()) %>% 
-  arrange(desc(antall)) %>% 
-  top_n(5)
+  count(distrikt, sort = TRUE) %>% 
+  top_n(10)
+
 
 df %>% 
-  filter(poeng > 88, 
-         varetype == "Hvitvin") %>% 
+  filter(varetype == "Rødvin", volum == 0.75) %>% 
   ggplot(aes(pris)) +
-  geom_histogram(stat = "bin", binwidth = 25)
-  
+  geom_histogram(stat = "bin", binwidth = 50) +
+  coord_cartesian(xlim = c(0, 1000))  
 
 
