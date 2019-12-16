@@ -36,7 +36,7 @@ varenummer <- produkter %>%
   pull(varenummer)
 
 
-url_loop <- paste0("https://www.vinmonopolet.no/p/", varenummer_url)
+url_loop <- paste0("https://www.vinmonopolet.no/p/", varenummer)
 
 
 # Scraper info -----------------------------------------------------------------------------
@@ -64,8 +64,12 @@ df <- tibble(
   order_to_store
 )
 
+current_date <- Sys.Date() %>% 
+  str_remove_all("-")
 
-write_excel_csv2(df, "order_to_store_vin.csv")
+
+write_excel_csv2(df, paste("data/", current_date,"_order_to_store_vin.csv", sep="")) 
+
 
 timer$stop("tibble_csv")
 
